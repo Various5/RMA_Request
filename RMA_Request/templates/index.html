@@ -1,0 +1,190 @@
+﻿<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auftragserfassung</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            color: #2c3e50;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        label {
+            font-weight: bold;
+        }
+        input[type="text"], select, input[type="file"], button {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #2c3e50;
+            color: #fff;
+            cursor: pointer;
+            padding: 10px;
+        }
+        button:hover {
+            background-color: #34495e;
+        }
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #2c3e50;
+            color: #fff;
+        }
+        .flash {
+            color: #28a745;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Auftragserfassung</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul class="flash">
+                {% for category, message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="/" enctype="multipart/form-data">
+        <label>Name Kunde:</label>
+        <input type="text" name="name_kunde" required>
+
+        <label>Wohin eingeschickt:</label>
+        <input type="text" name="wohin_eingeschickt" required>
+
+        <label>Fehler:</label>
+        <input type="text" name="fehler" required>
+
+        <label>KV ja/nein:</label>
+        <input type="checkbox" name="kv">
+
+        <label>Seriennummer:</label>
+        <input type="text" name="seriennummer" required>
+
+        <label>Modell:</label>
+        <input type="text" name="modell" required>
+
+        <label>K?rzel des Erstellers:</label>
+        <select name="kuerzel" required>
+            <option value="AB">AB</option>
+            <option value="CD">CD</option>
+            <option value="EF">EF</option>
+            <!-- F?gen Sie hier weitere K?rzel hinzu -->
+        </select>
+
+        <label>Datei anh?gen:</label>
+        <input type="file" name="file">
+
+        <button type="submit">Speichern</button>
+    </form>
+
+    <h2>Aktuelle Einsendungen</h2>
+    <table>
+        <tr>
+            <th>Timestamp</th>
+            <th>Name Kunde</th>
+            <th>Wohin</th>
+            <th>Fehler</th>
+            <th>KV</th>
+            <th>Seriennummer</th>
+            <th>Modell</th>
+            <th>K?rzel</th>
+            <th>Datei</th>
+            <th>Aktion</th>
+        </tr>
+        {% for auftrag in auftraege %}
+        <tr>
+            <td>{{ auftrag[1] }}</td>
+            <td>{{ auftrag[2] }}</td>
+            <td>{{ auftrag[3] }}</td>
+            <td>{{ auftrag[4] }}</td>
+            <td>{{ 'Ja' if auftrag[5] else 'Nein' }}</td>
+            <td>{{ auftrag[6] }}</td>
+            <td>{{ auftrag[7] }}</td>
+            <td>{{ auftrag[9] }}</td>
+            <td>
+                {% if auftrag[10] %}
+                    <a href="{{ url_for('static', filename=auftrag[10]) }}" download>Download</a>
+                {% else %}
+                    Keine Datei
+                {% endif %}
+            </td>
+            <td><a href="/abschliessen/{{ auftrag[0] }}">Abschliessen</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <h2>Historie abgeschlossener Auftr?e</h2>
+    <table>
+        <tr>
+            <th>Timestamp</th>
+            <th>Name Kunde</th>
+            <th>Wohin</th>
+            <th>Fehler</th>
+            <th>KV</th>
+            <th>Seriennummer</th>
+            <th>Modell</th>
+            <th>K?rzel</th>
+            <th>Datei</th>
+        </tr>
+        {% for auftrag in historie %}
+        <tr>
+            <td>{{ auftrag[1] }}</td>
+            <td>{{ auftrag[2] }}</td>
+            <td>{{ auftrag[3] }}</td>
+            <td>{{ auftrag[4] }}</td>
+            <td>{{ 'Ja' if auftrag[5] else 'Nein' }}</td>
+            <td>{{ auftrag[6] }}</td>
+            <td>{{ auftrag[7] }}</td>
+            <td>{{ auftrag[9] }}</td>
+            <td>
+                {% if auftrag[10] %}
+                    <a href="{{ url_for('static', filename=auftrag[10]) }}" download>Download</a>
+                {% else %}
+                    Keine Datei
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+</body>
+</html>
